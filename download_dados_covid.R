@@ -4,6 +4,7 @@ library(jsonlite)
 library(zoo)
 library(openxlsx)
 library(httr)
+setwd("~/github/covid_municipios")
 
 # Baixando os casos do Brasil.IO
 temp <- tempfile()
@@ -145,6 +146,34 @@ covid_data <- covid_data %>%
   left_join(registro_data_raw, by = c("date", "localidade")) %>%
   mutate(deaths_reg = replace_na(deaths_reg, 0))
 
+# Mobilidade do google
+google_mob_raw <- read_csv("https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv")
+
+google_mob <- google_mob_raw %>% 
+  filter(country_region_code == "BR") %>%
+  drop_na(sub_region_1) %>%
+  mutate(state = iso_3166_2_code, date = as.Date(date, "%Y-%m-%d")) %>%
+  select(-c("metro_area", "country_region_code", "country_region", "sub_region_1", "sub_region_2", "census_fips_code", "iso_3166_2_code")) %>%
+  mutate(state = substr(state, 4, 5)) %>%
+  rename_at(vars(setdiff(names(.), c("date", "state"))), 
+            function(x) paste0(x, "_uf"))
+
+covid_data <- covid_data %>% left_join(google_mob, by=c("date", "state"))
+
+# Mobilidade da Apple
+apple_mob_raw <- read_csv("https://covid19-static.cdn-apple.com/covid19-mobility-data/2013HotfixDev10/v3/en-us/applemobilitytrends-2020-07-27.csv")
+
+apple_mob <- apple_mob_raw %>%
+  filter(geo_type == "city", country == "Brazil") %>%
+  rename(city = region) %>%
+  select(-geo_type, -country, -alternative_name, -`sub-region`, -transit) %>%
+  gather(key = "date", value = "valor", -city, -transportation_type ) %>%
+  spread(transportation_type, valor) %>%
+  mutate(date = as.Date(date, "%Y-%m-%d"))%>%
+  rename_at(vars(setdiff(names(.), c("city", "date"))), 
+            function(x) paste0(x, "_city"))
+
+covid_data <- covid_data %>% left_join(apple_mob, by=c("date", "city"))
 
 #------- Dados socioeconômicos -------#
 # Densidade populacional
@@ -196,7 +225,7 @@ city_data <- data  %>%
   left_join(ind_gini_2003, by='localidade') %>%
   left_join(esg_sanitario, by='localidade') %>%
   left_join(mort_infantil, by='localidade') %>%
-  left_join(tx_escol, by='localidade')
+  left_join(tx_escol, by='localidade') 
 
 # Exportando em csv
 covid_data %>% write.csv("./dados/covid-municipios.csv", row.names=FALSE)
