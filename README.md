@@ -5,4 +5,4 @@
   * [data dictionary](data/data_dictionary.txt)
 
 * Scripts
-  * [script download data](/scripts/download_data.R)
+  * [script to download data](/scripts/download_data.R)
