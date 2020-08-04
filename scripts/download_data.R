@@ -17,7 +17,7 @@ close(con)
 covid_data <- data %>%
   filter(place_type == "state") %>%
   group_by(city_ibge_code) %>%
-  summarise(n=mean(estimated_population_2019)) %>%
+  summarise(n=max(last_available_confirmed)) %>%
   top_n(10) %>%
   left_join(data, by = "city_ibge_code") %>%
   mutate(date = as.Date(date, "%Y-%m-%d"), city_ibge_code=floor(city_ibge_code)) %>%
@@ -73,7 +73,7 @@ google_mob <- google_mob_raw %>%
 covid_data <- covid_data %>% left_join(google_mob, by=c("date", "state"))
 
 # Mobilidade da Apple
-apple_mob_raw <- read_csv("https://covid19-static.cdn-apple.com/covid19-mobility-data/2013HotfixDev10/v3/en-us/applemobilitytrends-2020-07-27.csv")
+apple_mob_raw <- read_csv("https://covid19-static.cdn-apple.com/covid19-mobility-data/2013HotfixDev17/v3/en-us/applemobilitytrends-2020-08-02.csv")
 
 apple_mob <- apple_mob_raw %>%
   filter(geo_type == "sub-region", country == "Brazil") %>%
@@ -98,5 +98,5 @@ covid_data <- covid_data %>%
 
 
 # Exportando em csv
-covid_data %>% write.csv("./data/covid19-mobility-data.csv", row.names=FALSE)
+covid_data %>% write.csv("../data/covid19-mobility-data.csv", row.names=FALSE)
 
