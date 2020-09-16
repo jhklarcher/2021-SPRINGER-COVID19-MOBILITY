@@ -12,11 +12,11 @@ cum_deaths_mins: cumulative deaths according to brazilian ministry of health
 new_confirmed_mins: new confirmed cases on a given day according to brazilian ministry of health
 new_deaths_mins: new deaths on a given day according to brazilian ministry of health
 
-gl_retail_and_recreation_percent_change_from_baseline: google retail and recreation mobility data
-gl_grocery_and_pharmacy_percent_change_from_baseline: google grocery and pharmacy mobility data
-gl_parks_percent_change_from_baseline: google parks mobility data
-gl_transit_stations_percent_change_from_baseline: google transit stations mobility data
-gl_workplaces_percent_change_from_baseline: google workplaces mobility data
-gl_residential_percent_change_from_baseline: google residential mobility data
+gl_retail_and_recreation_percent_change_from_baseline: google retail and recreation mobility data --> mob1
+gl_grocery_and_pharmacy_percent_change_from_baseline: google grocery and pharmacy mobility data   --> mob2
+gl_parks_percent_change_from_baseline: google parks mobility data                                 --> mob3
+gl_transit_stations_percent_change_from_baseline: google transit stations mobility data           --> mob4
+gl_workplaces_percent_change_from_baseline: google workplaces mobility data                       --> mob5
+gl_residential_percent_change_from_baseline: google residential mobility data                     --> mob6
 
 ap_driving: apple driving mobility data
