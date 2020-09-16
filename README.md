@@ -2,7 +2,7 @@
 ## :mask::car::cityscape: Ensemble learning models coupled with urban mobility information applied to predict COVID-19 incidence cases
 [<img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon"></img> Matheus H. D. M. Ribeiro][MatheusID], [<img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon"></img> Ramon Gomes da Silva][RamonID], [<img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon"></img> José Henrique Kleinübing Larcher][JoseID],  [<img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon"></img> Viviana Cocco Mariani][VivianaID], [<img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon"></img> Leandro dos Santos Coelho][LeandroID]
 
-![Flowchart of the model]()
+![Flowchart of the model](Figures/Diagram.png)
 
 ### Publication
 - [Book Chapter (Springer)][Springer]
