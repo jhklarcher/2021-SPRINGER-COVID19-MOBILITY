@@ -35,7 +35,6 @@ ncl<-detectCores();ncl
 #Registra os clusters a serem utilizados
 cl <- makeCluster(ncl-1);registerDoParallel(cl)
 ############################################################################
-
 setwd(DataDir)
 
 dados_all     <-read.table(file="covid19-mobility-data.csv",header=TRUE,sep=";",dec=".")
@@ -52,11 +51,11 @@ M <- cor(dadoscor)
 M
 par(family="Times New Roman")
 x11()
-corrplot(M, method = "circle",tl.col = "black",tl.cex=1.5,tl.srt = 60, cl.pos = "b")
+corrplot(M, method = "circle",tl.col = "red",tl.cex=1.5,tl.srt = 60, cl.pos = "b")
 
 X11()
-corrplot.mixed(M,upper.col = colorRampPalette(c("black","white","gray"))(200)
-               ,lower.col = "black",tl.col = "black")
+corrplot.mixed(M,upper.col = colorRampPalette(c("red","orange","yellow"))(200)
+               ,lower.col = "red",tl.col = "red")
 
 #Descriptive Measures
 
@@ -124,6 +123,7 @@ names(Decomposed_data)<-names(dados_states)
 #Save the datasets
 setwd(DataDir)
 saveRDS(Decomposed_data,"Decomposed_data.rds")
+Decomposed_data<-readRDS("Decomposed_data.rds")
 
 
 setwd(FiguresDir)
@@ -131,12 +131,12 @@ for(state in 1:length(Decomposed_data))
 {
   Dataset<-names(Decomposed_data)[state]
   Data   <-Decomposed_data[[state]][,c(2,3,10:15)]
-  nameeps<-paste("Components_",Dataset,".eps",sep="")
+  namepdf<-paste("Components_",Dataset,".pdf",sep="")
   
   #Set in one table
-  legends <- c("IMF[1]","IMF[2]","IMF[3]","IMF[4]","IMF[5]","Residual")
+  legends <- c("Data","IMF[1]","IMF[2]","IMF[3]","IMF[4]","IMF[5]","Residual")
   
-  components_EEMD<-data.frame(Obs=unlist(Data[,-c(1,2)]),
+  components_EEMD<-data.frame(Obs=unlist(Data[,-1]),
                                Samples=rep(c(1:dim(Data)[1]),times=length(legends)),
                                Comp=rep(legends,each=dim(Data)[1]))
   
@@ -152,23 +152,25 @@ for(state in 1:length(Decomposed_data))
         xlab("Samples") +  ylab("")+
         theme_bw() +
         theme(
-          axis.text=element_text(size=17),
-          axis.text.y = element_text(size=17),
-          strip.text.x = element_text(size = 17),
-          strip.text = element_text(size = 17),
+          axis.text=element_text(size=12),
+          axis.text.y = element_text(size=10),
+          strip.text.x = element_text(size = 12),
+          strip.text = element_text(size = 12),
           legend.direction = "horizontal",
           legend.title = element_blank(),
           #legend.position = "bottom",
           legend.position=c(0.3, 0.9),  
           legend.background = element_rect(fill="transparent",colour=NA),
           legend.text = element_text(size=17),
-          text = element_text(family = "Times New Roman", size = 25),
+          text = element_text(family = "Times New Roman", size = 20),
           strip.placement = "outside",
           strip.background = element_blank(),
           panel.grid.minor = element_blank()) 
     }
   
-  ggsave(nameeps, device=cairo_ps,width = 10,height = 6,dpi = 1200)
+  #Save pdf
+  ggsave(namepdf,device = cairo_pdf, width = 9,height = 6.75,units = "in",
+         dpi = 300) 
 }
 
 
@@ -1024,29 +1026,6 @@ data %>%
     )
   ))
 
-# data %>% 
-# ggplot(aes(reorder(variables, Average), Average)) + 
-#   geom_col(aes(fill = Average),color="black") + 
-#   geom_errorbar(aes(ymin=Average-Std, ymax=Average+Std), width=.2,
-#                 position=position_dodge(.9)) +
-#   ylab("Average Importance")+xlab("Variable")+
-#   theme_bw() +
-#   theme(text = element_text(family = "Times New Roman"),
-#         legend.direction = "vertical",
-#         axis.text=element_text(size=15),
-#         axis.title=element_text(size=20),
-#         axis.text.x = element_text(angle = 45, vjust = 0.5),
-#         legend.text=element_text(size=15),
-#         legend.position = "none",
-#         legend.background = element_rect(fill="transparent",linetype="solid",colour='black'))+
-#   scale_fill_gradient2(low = "yellow", 
-#                        high = "red") + 
-#   # scale_x_discrete(labels = rev(c(expression(Y[t-1]),
-#   # expression(Y[t-2]),expression(Y[t-3]), expression(Y[t-4]),
-#   # expression(Y[t-5]),expression(Y[t-6]),expression(Y[t-7]),
-#   # expression(X[1]),expression(X[2]),expression(X[3]),
-#   # expression(X[4]),expression(X[5]),expression(X[6]))))+
-#   coord_flip() 
 
 #Save eps
 setwd(FiguresDir)
@@ -1058,6 +1037,44 @@ ggsave(paste0("Feature_Importance.pdf",sep=""),device = cairo_pdf, width = 9,hei
 
 
 setwd(ResultsDir)
-load("Results_MA_EEMD_2020-09-14_7SA.RData")
+#Reading the errors
+#LSTM errors
 
-load("Results_MA_EEMD_2020-09-14_14SA.RData")
+LSTM_7 <-readRDS("lstm_error_test_7.rds")
+LSTM_14<-readRDS("lstm_error_test_14.rds")
+
+errors_7   <-list()
+errors_14  <-list()
+
+Results7 <-seq(2,20,2)
+Results14<-seq(1,20,2)
+models_names<-c("ELM","SVR","XGBoost","EEMD--HEM","EEMD--ELM","EEMD--SVR","EEMD--XGBoost","ARIMA","EEMD--LSTM","LSTM")
+s<-1
+q<-1
+for(i in 1:10)
+{
+  
+    Results          <-get(load(list_files[Results7[i]]))
+    e7               <-round(data.frame(Results[[6]],LSTM_7[[i]][,c(3:4)]))
+    colnames(e7)     <-models_names;
+    errors_7[[q]]    <-e7;
+
+    Results           <-get(load(list_files[Results14[i]]))
+    e14               <-round(data.frame(Results[[6]],LSTM_14[[i]][,c(1:2)]))
+    colnames(e14)     <-models_names;
+    errors_14[[q]]    <-e14;
+    q                 <-q+1
+
+  
+}
+names(errors_7) <-names(dados_states);
+write.xlsx(do.call(rbind.data.frame,errors_7),file="Errors_H7.xlsx")
+names(errors_14)<-names(dados_states)
+write.xlsx(do.call(rbind.data.frame,errors_14),file="Errors_H14.xlsx")
+
+
+#EEMD-HEM
+EEMD_HEM_7<-combs[c(386,42,385,3,32,139,227,276,179,447),]
+EEMD_HEM_14<-combs[c(156,614,365,130,566,620,287,357,223,221),]
+
+write.xlsx(cbind(EEMD_HEM_7,EEMD_HEM_14),file="EEMD-HEM.xlsx")
